@@ -9,7 +9,7 @@ This tool derives that data from a "ballot image" file.
 
 Here's example output (run on the 2018-06-15 report on the results of the 2018 San Francisco mayoral election):
 
->== FIRST PLACE VOTES BY WRITE-IN ANTOINE R. ROGERS VOTERS ==
+> == FIRST PLACE VOTES BY WRITE-IN ANTOINE R. ROGERS VOTERS ==
 >WRITE-IN ANTOINE R. ROGERS: 3
 >MICHELLE BRAVO: 0
 >LONDON BREED: 0
