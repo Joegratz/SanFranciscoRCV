@@ -1,7 +1,7 @@
 # Files available from https://sfelections.sfgov.org/june-5-2018-election-results-detailed-reports
 # You will have to go get the Master Lookup file and the Ballot Image file from there and place them in the same directory as this script.
-MASTER_LOOKUP_FILE = '20180615_masterlookup.txt'
-BALLOT_IMAGE_FILE = '20180615_ballotimage.txt'
+MASTER_LOOKUP_FILE = '20180618_masterlookup.txt'
+BALLOT_IMAGE_FILE = '20180618_ballotimage.txt'
 CONTEST_ID = 20 # 2018 SF mayoral race
 
 import collections
@@ -10,9 +10,9 @@ class Candidate():
 	def __init__(self, id, name):
 		self.id = id
 		self.name = name
-		self.firstPlaceTallies = collections.Counter()
-		self.secondPlaceTallies = collections.Counter()
-		self.thirdPlaceTallies = collections.Counter()
+		self.firstChoiceTallies = collections.Counter()
+		self.secondChoiceTallies = collections.Counter()
+		self.thirdChoiceTallies = collections.Counter()
 		
 	def __str__(self):
 		return self.name
@@ -73,22 +73,22 @@ with open(BALLOT_IMAGE_FILE, "r") as bif:
 # Tally up, for each candidate, how many of the voters who voted for them as the voter's first choice voted for each of the candidates as second choice, and how many voted for each of the candidates as third choice.
 for voterID, voter in voters.iteritems():
 	if voter.firstChoice:
-		voter.firstChoice.firstPlaceTallies.update([voter.firstChoice])
+		voter.firstChoice.firstChoiceTallies.update([voter.firstChoice])
 	if voter.firstChoice and voter.secondChoice:
-		voter.firstChoice.secondPlaceTallies.update([voter.secondChoice])
+		voter.firstChoice.secondChoiceTallies.update([voter.secondChoice])
 	if voter.firstChoice and voter.thirdChoice:
-		voter.firstChoice.thirdPlaceTallies.update([voter.thirdChoice])
+		voter.firstChoice.thirdChoiceTallies.update([voter.thirdChoice])
 	
 # Output the results of the tallies.
 for candidateID, candidate in candidates.iteritems():
-	print('== FIRST PLACE VOTES BY %s VOTERS ==' % candidate.name)
-	for tallyCandidateID, tallyCandidate in candidates.iteritems():
-		print '{}: {:,}'.format(tallyCandidate.name, candidate.firstPlaceTallies[tallyCandidate])
-	print('== SECOND PLACE VOTES BY %s VOTERS ==' % candidate.name)
-	for tallyCandidateID, tallyCandidate in candidates.iteritems():
-		print '{}: {:,}'.format(tallyCandidate.name, candidate.secondPlaceTallies[tallyCandidate])
-	print('== THIRD PLACE VOTES BY %s VOTERS ==' % candidate.name)
-	for tallyCandidateID, tallyCandidate in candidates.iteritems():
-		print '{}: {:,}'.format(tallyCandidate.name, candidate.thirdPlaceTallies[tallyCandidate])
-	print '======================================'
+	for place, counter in [('FIRST', candidate.firstChoiceTallies), ('SECOND', candidate.secondChoiceTallies), ('THIRD', candidate.thirdChoiceTallies)]:
+		print('== {} CHOICE VOTES BY {} VOTERS =='.format(place, candidate.name))
+		totalNthChoiceVotes = sum(counter.values())
+		for tallyCandidateID, tallyCandidate in candidates.iteritems():
+			try:
+				percentage = float(counter[tallyCandidate]) / totalNthChoiceVotes
+			except ZeroDivisionError:
+				percentage = 0
+			print '{}: {:,} ({:.1%})'.format(tallyCandidate.name, counter[tallyCandidate], percentage)
+	print '========================================================================='
 
